@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>後台管理 — 喬鈺酥香屋</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --red:#9E2B25; --red-deep:#7A211C; --gold:#C98A2B; --gold-light:#E4B65C;
+    --ink:#2B211C; --paper:#F6EEE0; --paper-2:#EFE3CC; --green:#5C7048;
+    --line: rgba(43,33,28,0.14); --shadow: 0 6px 18px rgba(43,33,28,0.16);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:'Noto Sans TC', sans-serif; padding-bottom:60px;
+  }
+  h1,h2,h3{ font-family:'Noto Serif TC', serif; }
+
+  header{
+    background:linear-gradient(160deg, var(--red) 0%, var(--red-deep) 100%);
+    color:#F6EEE0; padding:22px 20px;
+  }
+  header p{ margin:0; font-size:12.5px; color:var(--gold-light); }
+  header h1{ margin:4px 0 0; font-size:20px; }
+
+  /* ---- login ---- */
+  #login-screen{
+    max-width:360px; margin:60px auto 0; padding:0 24px; text-align:center;
+  }
+  #login-screen h2{ font-size:18px; margin-bottom:16px; }
+  #login-screen input{
+    width:100%; padding:13px; border-radius:11px; border:1px solid var(--line);
+    font-size:15px; font-family:'Noto Sans TC'; margin-bottom:12px; background:#fff;
+  }
+  #login-screen button{
+    width:100%; background:var(--red); color:#fff; border:none;
+    padding:13px; border-radius:11px; font-weight:700; font-size:14.5px; cursor:pointer;
+  }
+  #login-error{ color:var(--red); font-size:12.5px; margin-top:10px; display:none; }
+
+  /* ---- tabs ---- */
+  .tabs{
+    display:flex; gap:8px; margin:16px 20px; background:#fff;
+    border-radius:14px; padding:5px; box-shadow:var(--shadow);
+  }
+  .tabs button{
+    flex:1; border:none; background:transparent; padding:11px 8px;
+    font-weight:700; font-size:13.5px; border-radius:10px; cursor:pointer;
+    font-family:'Noto Sans TC'; color:var(--ink);
+  }
+  .tabs button.active{ background:var(--red); color:#fff; }
+
+  .panel{ display:none; padding:0 20px; }
+  .panel.show{ display:block; }
+
+  .toolbar{
+    display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap;
+  }
+  .btn{
+    border:none; border-radius:10px; padding:10px 16px; font-weight:700;
+    font-size:13px; cursor:pointer; font-family:'Noto Sans TC';
+  }
+  .btn-primary{ background:var(--red); color:#fff; }
+  .btn-secondary{ background:#fff; color:var(--ink); border:1.5px solid var(--line); }
+  .btn-danger{ background:#fff; color:var(--red); border:1.5px solid var(--red); }
+  .btn-small{ padding:7px 12px; font-size:12px; }
+
+  .save-status{ font-size:12.5px; margin-left:auto; align-self:center; }
+  .save-status.ok{ color:var(--green); font-weight:700; }
+  .save-status.err{ color:var(--red); font-weight:700; }
+
+  /* ---- menu editor ---- */
+  .mode-tabs{ display:flex; gap:8px; margin-bottom:14px; }
+  .mode-tabs button{
+    flex:1; border:1.5px solid var(--line); background:#fff; padding:9px;
+    border-radius:10px; font-weight:700; font-size:13px; cursor:pointer;
+    font-family:'Noto Sans TC'; color:var(--ink);
+  }
+  .mode-tabs button.active{ background:var(--ink); color:#fff; border-color:var(--ink); }
+
+  .category-card{
+    background:#fff; border-radius:16px; padding:16px; margin-bottom:14px;
+    box-shadow:var(--shadow);
+  }
+  .category-card .cat-row{
+    display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;
+  }
+  .category-card .cat-row input[type=text]{
+    flex:1; min-width:80px;
+  }
+  input[type=text], input[type=number], input[type=date]{
+    padding:9px 11px; border-radius:9px; border:1px solid var(--line);
+    font-family:'Noto Sans TC'; font-size:13.5px; background:var(--paper);
+  }
+  .cat-icon-input{ width:52px; text-align:center; }
+  label.checkbox-label{
+    display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700;
+    color:#5a4d43; white-space:nowrap;
+  }
+  .item-row{
+    display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap; align-items:center;
+    background:var(--paper); border-radius:10px; padding:8px;
+  }
+  .item-row input[type=text]{ flex:1; min-width:70px; }
+  .item-row input[type=number]{ width:80px; }
+  .item-row label.checkbox-label{ font-size:11.5px; }
+
+  /* ---- schedule editor ---- */
+  .schedule-row{
+    display:flex; gap:8px; margin-bottom:10px; align-items:center;
+    background:#fff; border-radius:12px; padding:10px 12px; box-shadow:var(--shadow);
+  }
+  .schedule-row input[type=date]{ width:150px; }
+  .schedule-row input[type=text]{ flex:1; min-width:100px; }
+
+  .hint{ font-size:12px; color:#8a7b6c; margin:0 0 14px; line-height:1.6; }
+</style>
+</head>
+<body>
+
+<header>
+  <p>喬鈺酥香屋 · 後台管理</p>
+  <h1>菜單 / 出攤設定</h1>
+</header>
+
+<div id="login-screen">
+  <h2>請輸入管理密碼</h2>
+  <input type="password" id="login-password" placeholder="管理密碼">
+  <button id="login-btn">登入</button>
+  <p id="login-error">密碼錯誤，請再試一次。</p>
+</div>
+
+<div id="admin-app" style="display:none;">
+
+  <div class="tabs">
+    <button id="tab-menu" class="active">菜單／價格管理</button>
+    <button id="tab-schedule">出攤日期地點</button>
+  </div>
+
+  <!-- ===== 菜單管理 ===== -->
+  <div class="panel show" id="panel-menu">
+    <p class="hint">改完內容後記得按「儲存菜單」，客人那邊的頁面重新整理後就會看到最新版本。</p>
+
+    <div class="mode-tabs">
+      <button id="menu-mode-daily" class="active" data-mode="daily">現炸菜單</button>
+      <button id="menu-mode-bbq" data-mode="bbq">中秋烤肉包預購</button>
+    </div>
+
+    <div id="category-list"></div>
+
+    <div class="toolbar">
+      <button class="btn btn-secondary" id="add-category">＋ 新增分類</button>
+      <button class="btn btn-primary" id="save-menu">儲存菜單</button>
+      <span class="save-status" id="menu-save-status"></span>
+    </div>
+  </div>
+
+  <!-- ===== 出攤設定 ===== -->
+  <div class="panel" id="panel-schedule">
+    <p class="hint">每次確定擺攤日期／地點後，加一筆。客人在下單頁選那天取貨時，會自動顯示這裡設定的地點。</p>
+
+    <div id="schedule-list"></div>
+
+    <div class="toolbar">
+      <button class="btn btn-secondary" id="add-schedule">＋ 新增一筆</button>
+      <button class="btn btn-primary" id="save-schedule">儲存出攤設定</button>
+      <span class="save-status" id="schedule-save-status"></span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* =========================================================================
+   設定區塊
+   ========================================================================= */
+// 跟 order.html 用同一組 Google Apps Script 網址
+const GAS_ENDPOINT = "請貼上你的 Google Apps Script 網址";
+/* ========================================================================= */
+
+let adminPassword = "";
+let menuData = { daily: [], bbq: [] }; // { mode: [ {category...}, ... ] }
+let scheduleData = []; // [ {date, location}, ... ]
+let currentMenuMode = "daily";
+
+function postToGas(body){
+  return fetch(GAS_ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" }, // 避免瀏覽器 CORS 預檢擋住請求
+    body: JSON.stringify(body)
+  }).then(res => res.json());
+}
+
+// ---- 登入 ----
+document.getElementById("login-btn").addEventListener("click", async () => {
+  const pw = document.getElementById("login-password").value;
+  const errEl = document.getElementById("login-error");
+  if (!GAS_ENDPOINT || !GAS_ENDPOINT.startsWith("http")) {
+    errEl.textContent = "尚未設定 GAS_ENDPOINT，請先在檔案裡貼上你的 Apps Script 網址。";
+    errEl.style.display = "block";
+    return;
+  }
+  try {
+    const data = await postToGas({ action: "adminAuth", password: pw });
+    if (data.ok) {
+      adminPassword = pw;
+      document.getElementById("login-screen").style.display = "none";
+      document.getElementById("admin-app").style.display = "block";
+      loadAll();
+    } else {
+      errEl.textContent = "密碼錯誤，請再試一次。";
+      errEl.style.display = "block";
+    }
+  } catch (err) {
+    errEl.textContent = "連線失敗，請確認網路或稍後再試。";
+    errEl.style.display = "block";
+  }
+});
+
+// ---- 分頁切換 ----
+document.getElementById("tab-menu").addEventListener("click", () => switchTab("menu"));
+document.getElementById("tab-schedule").addEventListener("click", () => switchTab("schedule"));
+function switchTab(tab){
+  document.getElementById("tab-menu").classList.toggle("active", tab === "menu");
+  document.getElementById("tab-schedule").classList.toggle("active", tab === "schedule");
+  document.getElementById("panel-menu").classList.toggle("show", tab === "menu");
+  document.getElementById("panel-schedule").classList.toggle("show", tab === "schedule");
+}
+
+// ---- 讀取現有資料 ----
+async function loadAll(){
+  try {
+    const res = await fetch(`${GAS_ENDPOINT}?action=config`);
+    const data = await res.json();
+    if (data.ok) {
+      menuData = rowsToMenuData(data.menu || []);
+      scheduleData = (data.schedule || []).map(r => ({
+        date: r["日期"] || "", location: r["地點"] || ""
+      }));
+    }
+  } catch (err) {
+    console.error("讀取設定失敗", err);
+  }
+  renderCategories();
+  renderSchedule();
+}
+
+function rowsToMenuData(rows){
+  const result = { daily: [], bbq: [] };
+  rows.forEach(r => {
+    const mode = r["模式"] === "bbq" ? "bbq" : "daily";
+    let cat = result[mode].find(c => c.name === r["分類"]);
+    if (!cat) {
+      cat = {
+        name: r["分類"] || "",
+        icon: r["圖示"] || "🍗",
+        flavorMulti: String(r["口味複選"]).toUpperCase() === "TRUE",
+        flavors: String(r["口味清單"] || ""),
+        items: []
+      };
+      result[mode].push(cat);
+    }
+    cat.items.push({
+      id: r["品項ID"] || ("item" + Date.now() + Math.random().toString(36).slice(2,6)),
+      name: r["品項名稱"] || "",
+      desc: r["說明"] || "",
+      price: r["價格"] || 0,
+      enabled: String(r["啟用"]).toUpperCase() !== "FALSE"
+    });
+  });
+  return result;
+}
+
+function menuDataToRows(){
+  const rows = [];
+  ["daily", "bbq"].forEach(mode => {
+    menuData[mode].forEach(cat => {
+      cat.items.forEach(item => {
+        rows.push({
+          "模式": mode,
+          "分類": cat.name,
+          "圖示": cat.icon,
+          "口味複選": cat.flavorMulti ? "TRUE" : "FALSE",
+          "口味清單": cat.flavors,
+          "品項ID": item.id,
+          "品項名稱": item.name,
+          "說明": item.desc,
+          "價格": item.price,
+          "啟用": item.enabled ? "TRUE" : "FALSE"
+        });
+      });
+    });
+  });
+  return rows;
+}
+
+// ---- 菜單管理 UI ----
+document.getElementById("menu-mode-daily").addEventListener("click", () => switchMenuMode("daily"));
+document.getElementById("menu-mode-bbq").addEventListener("click", () => switchMenuMode("bbq"));
+function switchMenuMode(mode){
+  currentMenuMode = mode;
+  document.getElementById("menu-mode-daily").classList.toggle("active", mode === "daily");
+  document.getElementById("menu-mode-bbq").classList.toggle("active", mode === "bbq");
+  renderCategories();
+}
+
+function renderCategories(){
+  const listEl = document.getElementById("category-list");
+  listEl.innerHTML = "";
+  menuData[currentMenuMode].forEach((cat, catIdx) => {
+    const card = document.createElement("div");
+    card.className = "category-card";
+    card.innerHTML = `
+      <div class="cat-row">
+        <input type="text" class="cat-icon-input" data-field="icon" value="${escapeAttr(cat.icon)}" placeholder="圖示">
+        <input type="text" data-field="name" value="${escapeAttr(cat.name)}" placeholder="分類名稱（例如 紅麴豆乳雞）">
+        <button class="btn btn-danger btn-small" data-action="del-cat">刪除分類</button>
+      </div>
+      <div class="cat-row">
+        <input type="text" data-field="flavors" style="flex:2;" value="${escapeAttr(cat.flavors)}" placeholder="口味清單，用逗號分隔，例如 胡椒鹽,辣粉,梅粉（沒有口味可留空）">
+        <label class="checkbox-label"><input type="checkbox" data-field="flavorMulti" ${cat.flavorMulti ? "checked" : ""}> 口味可複選</label>
+      </div>
+      <div class="item-list"></div>
+      <button class="btn btn-secondary btn-small" data-action="add-item">＋ 新增品項</button>
+    `;
+
+    // 分類欄位變更
+    card.querySelectorAll('[data-field="icon"], [data-field="name"], [data-field="flavors"]').forEach(input => {
+      input.addEventListener("input", () => {
+        cat[input.dataset.field] = input.value;
+      });
+    });
+    card.querySelector('[data-field="flavorMulti"]').addEventListener("change", (e) => {
+      cat.flavorMulti = e.target.checked;
+    });
+    card.querySelector('[data-action="del-cat"]').addEventListener("click", () => {
+      if (confirm(`確定要刪除「${cat.name}」這個分類嗎？裡面的品項也會一起刪除。`)) {
+        menuData[currentMenuMode].splice(catIdx, 1);
+        renderCategories();
+      }
+    });
+    card.querySelector('[data-action="add-item"]').addEventListener("click", () => {
+      cat.items.push({ id: "item" + Date.now(), name: "新品項", desc: "", price: 0, enabled: true });
+      renderCategories();
+    });
+
+    const itemListEl = card.querySelector(".item-list");
+    cat.items.forEach((item, itemIdx) => {
+      const row = document.createElement("div");
+      row.className = "item-row";
+      row.innerHTML = `
+        <input type="text" data-field="name" value="${escapeAttr(item.name)}" placeholder="品項名稱">
+        <input type="text" data-field="desc" value="${escapeAttr(item.desc)}" placeholder="說明（例如 翅腿11支）">
+        <input type="number" data-field="price" value="${item.price}" placeholder="價格">
+        <label class="checkbox-label"><input type="checkbox" data-field="enabled" ${item.enabled ? "checked" : ""}> 上架中</label>
+        <button class="btn btn-danger btn-small" data-action="del-item">刪除</button>
+      `;
+      row.querySelectorAll('[data-field="name"], [data-field="desc"]').forEach(input => {
+        input.addEventListener("input", () => { item[input.dataset.field] = input.value; });
+      });
+      row.querySelector('[data-field="price"]').addEventListener("input", (e) => {
+        item.price = Number(e.target.value) || 0;
+      });
+      row.querySelector('[data-field="enabled"]').addEventListener("change", (e) => {
+        item.enabled = e.target.checked;
+      });
+      row.querySelector('[data-action="del-item"]').addEventListener("click", () => {
+        cat.items.splice(itemIdx, 1);
+        renderCategories();
+      });
+      itemListEl.appendChild(row);
+    });
+
+    listEl.appendChild(card);
+  });
+}
+
+document.getElementById("add-category").addEventListener("click", () => {
+  menuData[currentMenuMode].push({
+    name: "新分類", icon: "🍗", flavorMulti: false, flavors: "", items: []
+  });
+  renderCategories();
+});
+
+document.getElementById("save-menu").addEventListener("click", async () => {
+  const statusEl = document.getElementById("menu-save-status");
+  statusEl.textContent = "儲存中…";
+  statusEl.className = "save-status";
+  try {
+    const data = await postToGas({ action: "adminSaveMenu", password: adminPassword, rows: menuDataToRows() });
+    if (data.ok) {
+      statusEl.textContent = "已儲存！";
+      statusEl.className = "save-status ok";
+    } else {
+      statusEl.textContent = data.error || "儲存失敗";
+      statusEl.className = "save-status err";
+    }
+  } catch (err) {
+    statusEl.textContent = "儲存失敗，請檢查網路";
+    statusEl.className = "save-status err";
+  }
+});
+
+// ---- 出攤設定 UI ----
+function renderSchedule(){
+  const listEl = document.getElementById("schedule-list");
+  listEl.innerHTML = "";
+  scheduleData.forEach((row, idx) => {
+    const rowEl = document.createElement("div");
+    rowEl.className = "schedule-row";
+    rowEl.innerHTML = `
+      <input type="date" data-field="date" value="${escapeAttr(row.date)}">
+      <input type="text" data-field="location" value="${escapeAttr(row.location)}" placeholder="擺攤地點">
+      <button class="btn btn-danger btn-small" data-action="del">刪除</button>
+    `;
+    rowEl.querySelector('[data-field="date"]').addEventListener("input", (e) => { row.date = e.target.value; });
+    rowEl.querySelector('[data-field="location"]').addEventListener("input", (e) => { row.location = e.target.value; });
+    rowEl.querySelector('[data-action="del"]').addEventListener("click", () => {
+      scheduleData.splice(idx, 1);
+      renderSchedule();
+    });
+    listEl.appendChild(rowEl);
+  });
+}
+
+document.getElementById("add-schedule").addEventListener("click", () => {
+  scheduleData.push({ date: "", location: "" });
+  renderSchedule();
+});
+
+document.getElementById("save-schedule").addEventListener("click", async () => {
+  const statusEl = document.getElementById("schedule-save-status");
+  statusEl.textContent = "儲存中…";
+  statusEl.className = "save-status";
+  const rows = scheduleData
+    .filter(r => r.date)
+    .map(r => ({ "日期": r.date, "地點": r.location }));
+  try {
+    const data = await postToGas({ action: "adminSaveSchedule", password: adminPassword, rows });
+    if (data.ok) {
+      statusEl.textContent = "已儲存！";
+      statusEl.className = "save-status ok";
+    } else {
+      statusEl.textContent = data.error || "儲存失敗";
+      statusEl.className = "save-status err";
+    }
+  } catch (err) {
+    statusEl.textContent = "儲存失敗，請檢查網路";
+    statusEl.className = "save-status err";
+  }
+});
+
+function escapeAttr(str){
+  return String(str == null ? "" : str)
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;");
+}
+</script>
+</body>
+</html>
